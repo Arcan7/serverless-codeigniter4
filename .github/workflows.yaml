@@ -1,0 +1,39 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*' # Déclenche le workflow uniquement sur les tags qui suivent le schéma vX.X.X
+
+jobs:
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      with:
+        tag_name: ${{ github.ref_name }} # Utilise le nom du tag pour la release
+        release_name: Release ${{ github.ref_name }}
+        body: |
+          🎉 **Nouvelle version publiée !**
+          Voici les détails de la version ${{ github.ref_name }} :
+          - Changement 1
+          - Changement 2
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Utilisé pour authentifier l'action
+
+    - name: Upload Release Assets
+      uses: actions/upload-release-asset@v1
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./codeigniter4.5.7-serverless-${{ github.ref_name }}.zip # Remplacez par le chemin de l'artefact que vous voulez inclure
+        asset_name: codeigniter4.5.7-serverless-${{ github.ref_name }}.zip
+        asset_content_type: application/zip
