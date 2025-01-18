@@ -6,12 +6,20 @@
     },
     "routes": [
         {
-            "src": "/(.*)",
-            "dest": "/api/index.php?/$1"
+            "src": "/assets/(.*)",
+            "dest": "/public/assets/$1"
+        },
+        {
+            "src": "/favicon.ico",
+            "dest": "/public/favicon.ico"
         },
         {
             "src": "/(.*)",
-            "dest": "/public/$1"
+            "dest": "/api/index.php"
         }
-    ]
+    ],
+    "env": {
+        "CI_ENVIRONMENT": "production",
+        "app.baseURL": "${VERCEL_URL}"
+    }
 }

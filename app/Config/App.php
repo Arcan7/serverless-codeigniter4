@@ -158,7 +158,7 @@ class App extends BaseConfig
      * secure, the user will be redirected to a secure version of the page
      * and the HTTP Strict Transport Security (HSTS) header will be set.
      */
-    public bool $forceGlobalSecureRequests = false;
+    public bool $forceGlobalSecureRequests = true;
 
     /**
      * --------------------------------------------------------------------------
@@ -200,5 +200,10 @@ class App extends BaseConfig
      * @see http://www.w3.org/TR/CSP/
      */
     public bool $CSPEnabled = false;
-    public $sessionDriver = 'CodeIgniter\Session\Handlers\ArrayHandler';
+
+    /**
+     * Ajoutez ces configurations pour Vercel
+     */
+    public bool $toolbarEnabled = false;  // Désactive la Debug Toolbar
+    public string $sessionDriver = 'CodeIgniter\Session\Handlers\ArrayHandler';
 }
