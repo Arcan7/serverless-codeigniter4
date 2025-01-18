@@ -1,42 +1,56 @@
 <?php
-// Path to the front controller (index.php)
-define('FCPATH', dirname(__DIR__) . '/public/');
 
-/*
- * ---------------------------------------------------------------
- * BOOTSTRAP THE APPLICATION
- * ---------------------------------------------------------------
+/**
+ * This file is the entry point for Vercel
  */
 
-// Load our paths config file
-require FCPATH . '../app/Config/Paths.php';
-// ^^^ Change this line if you move your application folder
+// Path to the front controller
+define('FCPATH', dirname(__DIR__) . '/public/');
 
+// Path to the project root directory
+define('ROOTPATH', dirname(__DIR__) . DIRECTORY_SEPARATOR);
+
+// Path to the system directory
+define('SYSTEMPATH', ROOTPATH . 'system' . DIRECTORY_SEPARATOR);
+
+// Path to the writable directory which will be using /tmp on Vercel
+define('WRITEPATH', '/tmp/');
+
+// The path to the "application" directory
+define('APPPATH', ROOTPATH . 'app' . DIRECTORY_SEPARATOR);
+
+// Ensure the current directory is pointing to the front controller's directory
+chdir(FCPATH);
+
+/*
+ *---------------------------------------------------------------
+ * BOOTSTRAP THE APPLICATION
+ *---------------------------------------------------------------
+ */
+
+// LOAD OUR PATHS CONFIG FILE
+require FCPATH . '../app/Config/Paths.php';
 $paths = new Config\Paths();
 
-// Location of the framework bootstrap file.
-require rtrim($paths->systemDirectory, '\\/ ') . DIRECTORY_SEPARATOR . 'bootstrap.php';
+// LOAD THE FRAMEWORK BOOT FILE
+require SYSTEMPATH . 'Boot.php';
 
-// Load environment settings from .env files into $_SERVER and $_ENV
-require_once SYSTEMPATH . 'Config/DotEnv.php';
-(new CodeIgniter\Config\DotEnv(ROOTPATH))->load();
-
-// Define ENVIRONMENT
-if (! defined('ENVIRONMENT')) {
-    define('ENVIRONMENT', env('CI_ENVIRONMENT', 'production'));
+// Define environment
+if (!defined('ENVIRONMENT')) {
+    define('ENVIRONMENT', $_ENV['CI_ENVIRONMENT'] ?? 'production');
 }
 
-// Load Config Cache
-$factoriesCache = [];
-if (is_file(WRITEPATH . 'cache/Config/factoriesCache.php')) {
-    $factoriesCache = require WRITEPATH . 'cache/Config/factoriesCache.php';
-}
+// Temporarily switch to system directory
+chdir(SYSTEMPATH);
 
-// Launch the framework
-$app = Config\Services::codeigniter();
-$app->initialize();
-$context = is_cli() ? 'php-cli' : 'web';
-$app->setContext($context);
+// Load the framework constants
+require SYSTEMPATH . 'Config/Constants.php';
 
-// Run the app
-$app->run();
+// Return to the project root
+chdir(ROOTPATH);
+
+// Modifier la configuration du cache pour Vercel
+\Config\Services::cache()->handler = 'array';
+\Config\Services::cache()->backupHandler = 'dummy';
+
+exit(CodeIgniter\Boot::bootWeb($paths));
