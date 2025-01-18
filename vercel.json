@@ -20,6 +20,5 @@
     ],
     "env": {
         "CI_ENVIRONMENT": "production",
-        "app.baseURL": "${VERCEL_URL}"
     }
 }

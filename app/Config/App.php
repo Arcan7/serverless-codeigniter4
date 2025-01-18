@@ -17,7 +17,17 @@ class App extends BaseConfig
      * E.g., http://example.com/
      */
 
-    public string $baseURL = 'https://serverless-codeigniter4.vercel.app/';
+    public string $baseURL = 'http://localhost/';
+
+    public function __construct()
+    {
+        parent::__construct();
+        
+        // Utiliser la variable d'environnement APP_BASE_URL si elle existe
+        if (isset($_ENV['APP_BASE_URL'])) {
+            $this->baseURL = 'https://' . $_ENV['APP_BASE_URL'] . '/';
+        }
+    }
 
     /**
      * Allowed Hostnames in the Site URL other than the hostname in the baseURL.
