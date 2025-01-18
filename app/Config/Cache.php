@@ -21,7 +21,7 @@ class Cache extends BaseConfig
      * The name of the preferred handler that should be used. If for some reason
      * it is not available, the $backupHandler will be used in its place.
      */
-    public string $handler = 'array';
+    public string $handler = 'dummy';
 
     /**
      * --------------------------------------------------------------------------
@@ -148,6 +148,7 @@ class Cache extends BaseConfig
         'predis'    => PredisHandler::class,
         'redis'     => RedisHandler::class,
         'wincache'  => WincacheHandler::class,
+        'array'     => \CodeIgniter\Cache\Handlers\ArrayHandler::class,
     ];
 
     /**
