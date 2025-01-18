@@ -3,7 +3,7 @@ name: Create Release
 on:
   push:
     tags:
-      - 'v*.*.*' # Déclenche le workflow uniquement sur les tags qui suivent le schéma vX.X.X
+      - 'v*.*.*'
 
 jobs:
   release:
@@ -13,27 +13,39 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Get Commit Messages
+      id: get_commits
+      run: |
+        LAST_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || git rev-list --max-parents=0 HEAD)
+        COMMITS=$(git log ${LAST_TAG}..HEAD --pretty=format:"- %s")
+        echo "commits<<EOF" >> $GITHUB_OUTPUT
+        echo "$COMMITS" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
 
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
       with:
-        tag_name: ${{ github.ref_name }} # Utilise le nom du tag pour la release
+        tag_name: ${{ github.ref_name }}
         release_name: Release ${{ github.ref_name }}
         body: |
           🎉 **Nouvelle version publiée !**
           Voici les détails de la version ${{ github.ref_name }} :
-          - Changement 1
-          - Changement 2
+          
+          ### Changements
+          ${{ steps.get_commits.outputs.commits }}
         draft: false
         prerelease: false
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Utilisé pour authentifier l'action
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Upload Release Assets
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./codeigniter4.5.7-serverless-${{ github.ref_name }}.zip # Remplacez par le chemin de l'artefact que vous voulez inclure
+        asset_path: ./codeigniter4.5.7-serverless-${{ github.ref_name }}.zip
         asset_name: codeigniter4.5.7-serverless-${{ github.ref_name }}.zip
         asset_content_type: application/zip
